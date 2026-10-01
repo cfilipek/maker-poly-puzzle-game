@@ -48,6 +48,10 @@ export const initialState: GameState = {
 
 export const TOTAL_SEASONS = EVENT_DECK.length
 
+function isValidPlotIndex(grid: Grid, index: number): boolean {
+  return Number.isInteger(index) && index >= 0 && index < grid.length
+}
+
 function updateActiveGrid(state: GameState, update: (grid: Grid) => Grid | null): GameState {
   if (state.phase !== 'plant') return state
   const player = state.players[state.activePlayer]
@@ -76,8 +80,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'plant':
       return updateActiveGrid(state, (grid) => {
+        if (!isValidPlotIndex(grid, action.index)) return null
         const existing = grid[action.index]
-        if (existing?.crop === action.crop) return null
+
+        // Selecting Lettuce on an old lettuce plot explicitly replants it.
+        // The old card is returned and reused, so inventory does not increase.
+        if (existing?.crop === action.crop) {
+          if (action.crop !== 'lettuce' || existing.plantedSeason === state.season) return null
+          grid[action.index] = { crop: action.crop, plantedSeason: state.season }
+          return grid
+        }
         const counts = countCrops(grid)
         if (counts[action.crop] >= CARDS_PER_CROP) return null
         grid[action.index] = { crop: action.crop, plantedSeason: state.season }
@@ -86,18 +98,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'move':
       return updateActiveGrid(state, (grid) => {
+        if (!isValidPlotIndex(grid, action.from) || !isValidPlotIndex(grid, action.to)) return null
         if (action.from === action.to) return null
         const from = grid[action.from]
         const to = grid[action.to]
         if (!from) return null
-        grid[action.to] = { crop: from.crop, plantedSeason: state.season }
-        grid[action.from] = to ? { crop: to.crop, plantedSeason: state.season } : null
+        // Rearranging crops is not replanting: both crops keep their age.
+        grid[action.to] = from
+        grid[action.from] = to ?? null
         return grid
       })
 
     case 'remove':
       return updateActiveGrid(state, (grid) => {
-        if (!grid[action.index]) return null
+        if (!isValidPlotIndex(grid, action.index) || !grid[action.index]) return null
         grid[action.index] = null
         return grid
       })

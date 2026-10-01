@@ -61,7 +61,7 @@ export const CROPS: Record<CropId, CropDef> = {
     baseYield: 5,
     flowering: false,
     traits: ['Quick Harvest'],
-    effect: 'Full yield the season it is planted, then -4 every season after.',
+    effect: 'Yield 5 the season it is planted, then 1 in each later season. Replant to reset; moving does not reset.',
     sprite: '/crops/lettuce.png',
   },
   marigold: {
@@ -267,24 +267,27 @@ export function scoreCell(grid: Grid, index: number, season: number, event: Even
     lines.push({ label: 'Hungry (no Nitrogen-Fixer)', delta: -2 })
   }
 
+  // Event protection requires a neighboring crop; crops do not protect themselves.
   if (event === 'weeds' || event === 'drought') {
-    if (!hasTrait(crop, 'Ground Cover') && !neighborHas('Ground Cover')) {
+    if (!neighborHas('Ground Cover')) {
       lines.push({ label: event === 'weeds' ? 'Weeds' : 'Drought', delta: -2 })
     }
   }
   if (event === 'pests') {
-    if (!hasTrait(crop, 'Pest Deterrent') && !neighborHas('Pest Deterrent')) {
+    if (!neighborHas('Pest Deterrent')) {
       lines.push({ label: 'Aphids', delta: -2 })
     }
   }
   if (event === 'nutrients') {
     if (hasTrait(crop, 'Heavy Feeder')) lines.push({ label: 'Depleted soil', delta: -2 })
-    if (!hasTrait(crop, 'Nitrogen-Fixer') && !neighborHas('Nitrogen-Fixer')) {
+    if (!neighborHas('Nitrogen-Fixer')) {
       lines.push({ label: 'Low nitrogen', delta: -1 })
     }
   }
 
   const raw = lines.reduce((sum, l) => sum + l.delta, 0)
+  // Keep the per-crop zero minimum and make the breakdown add up to the total.
+  if (raw < 0) lines.push({ label: 'Minimum yield of 0', delta: -raw })
   return { index, crop, lines, total: Math.max(0, raw) }
 }
 
