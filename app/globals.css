@@ -1,0 +1,150 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-nunito), 'Nunito', ui-sans-serif, system-ui;
+  --font-mono: var(--font-press-start), 'Press Start 2P', ui-monospace, monospace;
+  --color-soil: var(--soil);
+  --color-soil-foreground: var(--soil-foreground);
+  --color-grass: var(--grass);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+:root {
+  color-scheme: light;
+  /* grass green, soil brown, parchment, ink, harvest gold */
+  --grass: #7fb449;
+  --soil: #6e4424;
+  --soil-foreground: #f2dcaa;
+  --background: #7fb449;
+  --foreground: #2f1f13;
+  --card: #f2dcaa;
+  --card-foreground: #2f1f13;
+  --popover: #f2dcaa;
+  --popover-foreground: #2f1f13;
+  --primary: #6e4424;
+  --primary-foreground: #f2dcaa;
+  --secondary: #f2dcaa;
+  --secondary-foreground: #2f1f13;
+  --muted: #e6c98f;
+  --muted-foreground: #5a4130;
+  --accent: #f2b135;
+  --accent-foreground: #2f1f13;
+  --destructive: #a8321e;
+  --border: #2f1f13;
+  --input: #2f1f13;
+  --ring: #f2b135;
+  --radius: 0rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer components {
+  .grass-bg {
+    background-color: var(--grass);
+    background-image:
+      linear-gradient(45deg, color-mix(in oklab, var(--foreground) 7%, transparent) 25%, transparent 25%),
+      linear-gradient(-45deg, color-mix(in oklab, var(--foreground) 7%, transparent) 25%, transparent 25%);
+    background-size: 24px 24px;
+  }
+
+  .pixel-frame {
+    border: 4px solid var(--foreground);
+    box-shadow: 6px 6px 0 0 color-mix(in oklab, var(--foreground) 45%, transparent);
+  }
+
+  .pixel-frame-sm {
+    border: 3px solid var(--foreground);
+    box-shadow: 3px 3px 0 0 color-mix(in oklab, var(--foreground) 45%, transparent);
+  }
+
+  .soil-tile {
+    background-color: var(--soil);
+    background-image: repeating-linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--foreground) 22%, transparent) 0 4px,
+      transparent 4px 12px
+    );
+  }
+
+  .pixelated {
+    image-rendering: pixelated;
+  }
+
+  .pixel-btn {
+    border: 3px solid var(--foreground);
+    box-shadow: inset -4px -4px 0 0 color-mix(in oklab, var(--foreground) 30%, transparent),
+      3px 3px 0 0 color-mix(in oklab, var(--foreground) 45%, transparent);
+    transition: transform 80ms steps(2);
+  }
+  .pixel-btn:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: inset -4px -4px 0 0 color-mix(in oklab, var(--foreground) 30%, transparent);
+  }
+  .pixel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes flip-in {
+  0% {
+    transform: perspective(600px) rotateY(90deg);
+  }
+  100% {
+    transform: perspective(600px) rotateY(0deg);
+  }
+}
+.animate-flip-in {
+  animation: flip-in 450ms steps(6) both;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-pop-in {
+  animation: pop-in 180ms steps(3) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flip-in,
+  .animate-pop-in {
+    animation: none;
+  }
+}
